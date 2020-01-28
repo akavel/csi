@@ -1,9 +1,6 @@
 package terminal
 
 import (
-	"bufio"
-	"fmt"
-	"io"
 	"sync"
 
 	"go.uber.org/zap"
@@ -69,20 +66,18 @@ type Winsize struct {
 	y      uint16 //ignored, but necessary for ioctl calls
 }
 
-func New(pty platform.Pty, logger *zap.SugaredLogger, config *config.Config) *Terminal {
+func New(logger *zap.SugaredLogger, config *config.Config) *Terminal {
 	t := &Terminal{
 		terminalState: buffer.NewTerminalState(1, 1, buffer.CellAttributes{
 			FgColour: config.ColourScheme.Foreground,
 			BgColour: config.ColourScheme.Background,
 		}, config.MaxLines),
-		pty:           pty,
 		logger:        logger,
 		config:        config,
 		titleHandlers: []chan bool{},
 		modes: Modes{
 			ShowCursor: true,
 		},
-		platformDependentSettings: pty.GetPlatformDependentSettings(),
 	}
 	t.buffers = []*buffer.Buffer{
 		buffer.NewBuffer(t.terminalState),
@@ -133,8 +128,9 @@ func (terminal *Terminal) GetMouseExtMode() MouseExtMode {
 }
 
 func (terminal *Terminal) IsOSCTerminator(char rune) bool {
-	_, ok := terminal.platformDependentSettings.OSCTerminators[char]
-	return ok
+	// _, ok := terminal.platformDependentSettings.OSCTerminators[char]
+	// return ok
+	return char == 0x07 || char == 0x5c
 }
 
 func (terminal *Terminal) UseMainBuffer() {
@@ -300,8 +296,9 @@ func (terminal *Terminal) SetTitle(title string) {
 
 // Write sends data, i.e. locally typed keystrokes to the pty
 func (terminal *Terminal) Write(data []byte) error {
-	_, err := terminal.pty.Write(data)
-	return err
+	// _, err := terminal.pty.Write(data)
+	// return err
+	return nil
 }
 
 func (terminal *Terminal) WriteReturn() error {
@@ -313,36 +310,36 @@ func (terminal *Terminal) WriteReturn() error {
 }
 
 func (terminal *Terminal) Paste(data []byte) error {
-
-	if terminal.bracketedPasteMode {
-		data = []byte(fmt.Sprintf("\x1b[200~%s\x1b[201~", string(data)))
-	}
-	_, err := terminal.pty.Write(data)
-	return err
-}
-
-// Read needs to be run on a goroutine, as it continually reads output to set on the terminal
-func (terminal *Terminal) Read() error {
-
-	buffer := make(chan rune, 0xffff)
-
-	reader := bufio.NewReader(terminal.pty)
-
-	go terminal.processInput(buffer)
-	for {
-		r, _, err := reader.ReadRune()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return err
-		}
-		buffer <- r
-	}
-
-	//clean exit
+	// if terminal.bracketedPasteMode {
+	// 	data = []byte(fmt.Sprintf("\x1b[200~%s\x1b[201~", string(data)))
+	// }
+	// _, err := terminal.pty.Write(data)
+	// return err
 	return nil
 }
+
+//// Read needs to be run on a goroutine, as it continually reads output to set on the terminal
+//func (terminal *Terminal) Read() error {
+
+//	buffer := make(chan rune, 0xffff)
+
+//	reader := bufio.NewReader(terminal.pty)
+
+//	go terminal.processInput(buffer)
+//	for {
+//		r, _, err := reader.ReadRune()
+//		if err != nil {
+//			if err == io.EOF {
+//				break
+//			}
+//			return err
+//		}
+//		buffer <- r
+//	}
+
+//	//clean exit
+//	return nil
+//}
 
 func (terminal *Terminal) Clear() {
 	terminal.ActiveBuffer().Clear()
@@ -360,10 +357,10 @@ func (terminal *Terminal) SetSize(newCols uint, newLines uint) error {
 		return nil
 	}
 
-	err := terminal.pty.Resize(int(newCols), int(newLines))
-	if err != nil {
-		return fmt.Errorf("Failed to set terminal size vai ioctl: Error no %d", err)
-	}
+	// err := terminal.pty.Resize(int(newCols), int(newLines))
+	// if err != nil {
+	// 	return fmt.Errorf("Failed to set terminal size vai ioctl: Error no %d", err)
+	// }
 
 	terminal.size.Width = uint16(newCols)
 	terminal.size.Height = uint16(newLines)

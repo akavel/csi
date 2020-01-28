@@ -14,7 +14,7 @@ var ansiSequenceMap = map[rune]escapeSequenceHandler{
 	'E': nextLineHandler, // NEL
 	'H': tabSetHandler,   // HTS
 	'M': reverseIndexHandler,
-	'P': sixelHandler,
+	// 'P': sixelHandler,
 	'c': risHandler, //RIS
 	'#': screenStateHandler,
 	'(': scs0Handler,       // select character set into G0
