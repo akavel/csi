@@ -97,7 +97,7 @@ func (terminal *Terminal) translateRune(b rune) rune {
 	return b
 }
 
-func (terminal *Terminal) processInput(pty chan rune) {
+func (terminal *Terminal) ProcessInput(pty chan rune) {
 
 	// https://en.wikipedia.org/wiki/ANSI_escape_code
 
