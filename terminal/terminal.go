@@ -6,10 +6,10 @@ import (
 	"io"
 	"sync"
 
-	"github.com/liamg/aminal/buffer"
-	"github.com/liamg/aminal/config"
-	"github.com/liamg/aminal/platform"
 	"go.uber.org/zap"
+
+	"github.com/akavel/csi/buffer"
+	"github.com/akavel/csi/config"
 )
 
 const (
@@ -34,28 +34,26 @@ const (
 )
 
 type Terminal struct {
-	program                   uint32
-	buffers                   []*buffer.Buffer
-	activeBuffer              *buffer.Buffer
-	lock                      sync.Mutex
-	pty                       platform.Pty
-	logger                    *zap.SugaredLogger
-	title                     string
-	size                      Winsize
-	config                    *config.Config
-	titleHandlers             []chan bool
-	resizeHandlers            []chan bool
-	reverseHandlers           []chan bool
-	modes                     Modes
-	mouseMode                 MouseMode
-	mouseExtMode              MouseExtMode
-	bracketedPasteMode        bool
-	isDirty                   bool
-	charWidth                 float32
-	charHeight                float32
-	lastBuffer                uint8
-	terminalState             *buffer.TerminalState
-	platformDependentSettings platform.PlatformDependentSettings
+	program            uint32
+	buffers            []*buffer.Buffer
+	activeBuffer       *buffer.Buffer
+	lock               sync.Mutex
+	logger             *zap.SugaredLogger
+	title              string
+	size               Winsize
+	config             *config.Config
+	titleHandlers      []chan bool
+	resizeHandlers     []chan bool
+	reverseHandlers    []chan bool
+	modes              Modes
+	mouseMode          MouseMode
+	mouseExtMode       MouseExtMode
+	bracketedPasteMode bool
+	isDirty            bool
+	charWidth          float32
+	charHeight         float32
+	lastBuffer         uint8
+	terminalState      *buffer.TerminalState
 }
 
 type Modes struct {
